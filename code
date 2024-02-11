@@ -1,0 +1,158 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class BankAccountGUI extends JFrame {
+    private BankAccount bankAccount;
+    private JTextField depositField;
+    private JTextField withdrawField;
+    private JTextArea textArea;
+    private String accountNumber;
+    private String accountHolderName;
+
+    public BankAccountGUI(String accountNumber, String accountHolderName, double initialBalance) {
+        this.accountNumber = accountNumber;
+        this.accountHolderName = accountHolderName;
+        bankAccount = new BankAccount(accountNumber, accountHolderName, initialBalance);
+
+        setTitle("Bank Account Management");
+        setSize(400, 300);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        depositField = new JTextField(10);
+        withdrawField = new JTextField(10);
+        textArea = new JTextArea(10, 30);
+
+        JPanel inputPanel = new JPanel();
+        inputPanel.setLayout(new GridLayout(5, 2));
+
+       
+        inputPanel.add(new JLabel("Deposit: "));
+        inputPanel.add(depositField);
+        inputPanel.add(new JLabel("Withdraw: "));
+        inputPanel.add(withdrawField);
+
+        JButton depositButton = new JButton("Deposit");
+        JButton withdrawButton = new JButton("Withdraw");
+        JButton checkBalanceButton = new JButton("Check Balance");
+        JButton exitButton = new JButton("Exit");
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout());
+
+        buttonPanel.add(depositButton);
+        buttonPanel.add(withdrawButton);
+        buttonPanel.add(checkBalanceButton);
+        buttonPanel.add(exitButton);
+
+        depositButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                double amount = Double.parseDouble(depositField.getText());
+                bankAccount.deposit(amount);
+                depositField.setText("");
+                updateTextArea("Deposited " + amount);
+            }
+        });
+
+        withdrawButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                double amount = Double.parseDouble(withdrawField.getText());
+                bankAccount.withdraw(amount);
+                withdrawField.setText("");
+                updateTextArea("Withdrawn " + amount);
+            }
+        });
+
+        checkBalanceButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                double balance = bankAccount.getBalance();
+                updateTextArea("Account Number: " + accountNumber
+                        + "\nAccount Holder Name: " + accountHolderName
+                        + "\nTotal Balance: $" + balance);
+            }
+        });
+
+        exitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
+
+        add(inputPanel, BorderLayout.NORTH);
+        add(new JScrollPane(textArea), BorderLayout.CENTER);
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        setVisible(true);
+    }
+
+    private void updateTextArea(String text) {
+        textArea.insert(text + "\n\n", 0);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                JFrame accountInfoFrame = new JFrame("Account Information");
+                accountInfoFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                accountInfoFrame.setLayout(new FlowLayout());
+
+                JTextField accountNumberField = new JTextField(10);
+                JTextField accountHolderNameField = new JTextField(10);
+                JTextField initialBalanceField = new JTextField(10);
+
+                JButton submitButton = new JButton("Submit");
+                accountInfoFrame.add(new JLabel("Account Number: "));
+                accountInfoFrame.add(accountNumberField);
+                accountInfoFrame.add(new JLabel("Account Holder Name: "));
+                accountInfoFrame.add(accountHolderNameField);
+                accountInfoFrame.add(new JLabel("Initial Balance: "));
+                accountInfoFrame.add(initialBalanceField);
+                accountInfoFrame.add(submitButton);
+
+                accountInfoFrame.pack();
+                accountInfoFrame.setVisible(true);
+
+                submitButton.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        String accountNumber = accountNumberField.getText();
+                        String accountHolderName = accountHolderNameField.getText();
+                        double initialBalance = Double.parseDouble(initialBalanceField.getText());
+                        accountInfoFrame.dispose();
+                        new BankAccountGUI(accountNumber, accountHolderName, initialBalance);
+                    }
+                });
+            }
+        });
+    }
+}
+
+class BankAccount {
+    private double balance;
+
+    public BankAccount(String accountNumber, String accountHolderName, double initialBalance) {
+        this.balance = initialBalance;
+    }
+
+    public void deposit(double amount) {
+        if (amount > 0) {
+            balance += amount;
+        }
+    }
+
+    public void withdraw(double amount) {
+        if (amount > 0 && balance >= amount) {
+            balance -= amount;
+        }
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+}
